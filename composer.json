@@ -1,0 +1,26 @@
+{
+  "name": "neoground/imgcoon",
+  "description": "The raccoon creating images from your input",
+  "homepage": "https://neoground.com",
+  "license": "MIT",
+  "version": "v1.0",
+  "authors": [
+    {
+      "name": "Sven Reifschneider",
+      "email": "hello@neoground.com"
+    }
+  ],
+  "require": {
+    "php": ">=8.3",
+    "ext-gd": "*",
+    "symfony/process": "^7.2"
+  },
+  "suggest": {
+    "ext-imagick": "For better image handling"
+  },
+  "autoload": {
+    "psr-4": {
+      "Neoground\\Imgcoon\\": "app/"
+    }
+  }
+}
