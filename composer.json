@@ -1,6 +1,6 @@
 {
   "name": "neoground/imgcoon",
-  "description": "The raccoon creating images from your input",
+  "description": "An artsy raccoon creating you thumbnails and preview images for many file formats.",
   "homepage": "https://neoground.com",
   "license": "MIT",
   "version": "v1.0",

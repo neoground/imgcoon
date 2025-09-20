@@ -4,5 +4,5 @@ namespace Neoground\Imgcoon;
 
 class Imgcoon
 {
-
+    // TODO
 }
