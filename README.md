@@ -13,8 +13,6 @@ It wraps common system tools and PHP imaging extensions into a single, fluent AP
 
 Used reliably across our own SaaS and platforms — **stable in production**.
 
----
-
 ## ✨ Features
 
 * **Many sources → one image**: images, videos, PDFs, office docs, and audio into preview images.
@@ -22,8 +20,6 @@ Used reliably across our own SaaS and platforms — **stable in production**.
 * **Sizing made simple**: pick a mode and width, optional aspect ratio lock (e.g. `4:3`).
 * **Modern formats**: output to WebP (recommended), JPEG, PNG, etc.
 * **Predictable results**: sensible defaults designed for app thumbnails and file galleries.
-
----
 
 ## ⚙️ Requirements
 
@@ -103,8 +99,6 @@ pecl install imagick   # PHP extension
 * Add each binary folder to your **PATH** so PHP can run them with `shell_exec`.
 * For Imagick, install the [Imagick DLL](https://mlocati.github.io/articles/php-windows-imagick.html) matching your PHP build.
 
----
-
 ## 📦 Installation
 
 Via Composer (recommended):
@@ -114,8 +108,6 @@ composer require neoground/imgcoon
 ```
 
 Or include the class in your autoloader if you vendor the source directly.
-
----
 
 ## 🚀 Quick Start
 
@@ -150,8 +142,6 @@ $ic->setSource($src_file)
    ->generate(true);      // override if destination exists
 ```
 
----
-
 ## 📚 What Imgcoon can render
 
 * **Images** supported by GD/Imagick (JPEG, PNG, WebP, etc.)
@@ -162,8 +152,6 @@ $ic->setSource($src_file)
 
 For audio: Imgcoon renders a waveform visualization as your preview image.
 
----
-
 ## 🔒 Security & Operations
 
 * **Untrusted input**: Do not pass raw user input directly to file paths. Sanitize and store uploads safely.
@@ -172,15 +160,11 @@ For audio: Imgcoon renders a waveform visualization as your preview image.
   layer.
 * **Sandboxing**: For multi-tenant apps, run converters in isolated workers/containers when possible.
 
----
-
 ## ✅ Production Notes
 
 * **Idempotent writes**: Use `$override = false` in `generate()` or `create()` to avoid accidental overwrites.
 * **Deterministic thumbnails**: Fix width and aspect to keep grid UIs neat.
 * **Format choice**: Prefer `image/webp` for size/quality; fall back to JPEG/PNG for broader compatibility.
-
----
 
 ## 🧪 Troubleshooting
 
@@ -191,8 +175,6 @@ For audio: Imgcoon renders a waveform visualization as your preview image.
 * **PDF pages wrong**: Ensure Ghostscript is recent and ImageMagick policies allow PDF reading.
 * **Fonts in office docs**: Install appropriate system fonts (LibreOffice rendering quality depends on installed fonts).
 
----
-
 ## 🤝 Contributing
 
 Issues and PRs are welcome. Please:
@@ -201,8 +183,6 @@ Issues and PRs are welcome. Please:
 2. Include minimal repro steps and sample files if possible.
 3. Keep changes small and focused; add tests when practical.
 
----
-
 ## 🗺️ Roadmap (indicative)
 
 * Optional CLI wrapper for queue workers
@@ -210,13 +190,9 @@ Issues and PRs are welcome. Please:
 * More sizing modes (explicit crop/cover, focal point)
 * Metadata hooks (e.g., first page selection for PDFs)
 
----
-
 ## 📄 License
 
-**MIT** — see [LICENSE](./LICENSE.md).
-
----
+**MIT** — see [LICENSE.md](./LICENSE.md).
 
 ## 🧭 About Neoground
 
