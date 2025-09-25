@@ -26,31 +26,13 @@ class Imgcoon
     /** @var string image mode: crop (default), bestfit, canvas */
     protected string $mode = 'crop';
 
-    /**
-     * An array of all mime types (wildcard, str_contains) for files
-     * which will be processed with LibreOffice (conversion to PDF)
-     *
-     * @var array|string[]
-     */
-    protected array $libre_office_mime_types = [
-        // Modern standard
-        'application/vnd.oasis.opendocument', // open docs, e.g. .odt / .ods / .odp / .odc / .odi / .odf
-        'application/vnd.openxmlformats-officedocument', // office, e.g. .docx / .xlsx / .pptx
-
-        // Classic files
-        'application/rtf', // .rtf
-        'text/plain', // .txt
-        'text/csv', // .csv
-
-        // Legacy formats
-        'application/vnd.sun.xml', // old openoffice, e.g. .sx* / .st*
-        'application/vnd.lotus-wordpro', // .lwp
-        'application/wordperfect', // .wpd
-        'application/x-staroffice', // StarOffice formats
-        'application/msword', // .doc
-        'application/vnd.ms-word', // .docm
-        'application/vnd.ms-excel', // .xls / .xlsm
-        'application/vnd.ms-powerpoint', // .ppt
+    /** @var array available generators */
+    protected array $generators = [
+        'Audio',
+        'Document',
+        'Image',
+        'Pdf',
+        'Video'
     ];
 
     public static function create(string $src_path,
@@ -160,26 +142,20 @@ class Imgcoon
             unlink($this->dest_path);
         }
 
-        // TODO Add generate methods in own classes with common interface
-        if (str_contains($this->src_mime, 'video')) {
-            return $this->generateVideoThumbnail();
-        }
+        // Go through all generators and find a suiting one
+        foreach ($this->generators as $class) {
+            $fqcn = "Neoground\\Imgcoon\\Generators\\" . $class;
 
-        if (str_contains($this->src_mime, 'image')) {
-            return $this->generateImageThumbnail();
-        }
+            if (!class_exists($fqcn)) {
+                continue;
+            }
 
-        if (str_contains($this->src_mime, 'application/pdf')) {
-            return $this->generatePdfThumbnail();
-        }
-
-        if (str_contains($this->src_mime, 'audio')) {
-            return $this->generateAudioThumbnail();
-        }
-
-        foreach ($this->libre_office_mime_types as $lomt) {
-            if (str_contains($this->src_mime, $lomt)) {
-                return $this->generateOfficeThumbnail();
+            try {
+                if ($fqcn::isSupported($this->src_mime)) {
+                    return (new $fqcn())->generate();
+                }
+            } catch (\Throwable) {
+                // ignore and try next
             }
         }
 
