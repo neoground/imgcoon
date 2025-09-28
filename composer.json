@@ -12,9 +12,10 @@
   ],
   "require": {
     "php": ">=8.3",
+    "ext-fileinfo": "*",
     "ext-gd": "*",
-    "symfony/process": "^7.2",
-    "ext-fileinfo": "*"
+    "symfony/process": "^7.3",
+    "claviska/simpleimage": "^3.7"
   },
   "suggest": {
     "ext-imagick": "For better image handling"

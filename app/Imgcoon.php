@@ -2,6 +2,8 @@
 
 namespace Neoground\Imgcoon;
 
+use claviska\SimpleImage;
+
 class Imgcoon
 {
     /** @var string absolute path to the source file */
@@ -32,7 +34,7 @@ class Imgcoon
         'Document',
         'Image',
         'Pdf',
-        'Video'
+        'Video',
     ];
 
     public static function create(string $src_path,
@@ -161,5 +163,136 @@ class Imgcoon
 
         // Invalid type
         return false;
+    }
+
+    /**
+     * Optimize the thumbnail
+     *
+     * After a thumbnail is generated with a 3rd party tool,
+     * this needs to be optimized (cropped, resized, compressed).
+     *
+     * @param string|null $src_path optional image source path to use. By default, it is the $dest_path.
+     *
+     * @return bool true on success, false on error
+     */
+    private function optimizeThumbnail(string $src_path = null): bool
+    {
+        if (empty($src_path)) {
+            $src_path = $this->dest_path;
+        }
+
+        if (file_exists($src_path)) {
+            try {
+                $img = new SimpleImage();
+                $img->fromFile($src_path)
+                    ->autoOrient();
+
+                switch ($this->mode) {
+                    case 'crop':
+                        $img->thumbnail($this->width, $this->height);
+                        break;
+                    case 'bestfit':
+                        $img->bestFit($this->width, $this->height);
+                        break;
+                    case 'canvas':
+                        $img->bestFit($this->width, $this->height);
+
+                        // Detect transparency
+                        $hasAlpha = $this->hasTransparency($img, $img->getMimeType());
+                        $bgColor = $hasAlpha ? 'transparent' : $this->inferBackgroundColor($img);
+
+                        $canvas = new SimpleImage();
+                        $canvas->fromNew($this->width, $this->height, $bgColor);
+                        $canvas->overlay($img);
+                        $img = $canvas;
+                        break;
+                }
+
+                $img->toFile($this->dest_path, $this->dest_mime, $this->quality);
+            } catch (\Exception $e) {
+                return false;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private function hasTransparency(SimpleImage $img, string $mime): bool
+    {
+        if (!in_array($mime, ['image/png', 'image/webp', 'image/gif'])) {
+            return false;
+        }
+
+        // Sample some pixels for transparency
+        $w = $img->getWidth();
+        $h = $img->getHeight();
+        $samples = [
+            [$w / 2, $h / 2],
+            [0, 0], [$w - 1, 0],
+            [0, $h - 1], [$w - 1, $h - 1],
+        ];
+
+        foreach ($samples as [$x, $y]) {
+            $color = $img->getColorAt((int)$x, (int)$y);
+            if (isset($color['alpha']) && $color['alpha'] < 1.0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function inferBackgroundColor(SimpleImage $img): string
+    {
+        $width = $img->getWidth();
+        $height = $img->getHeight();
+
+        $samplePoints = [
+            [2, 2], // top-left
+            [$width - 2, 2], // top-right
+            [2, $height - 2], // bottom-left
+            [$width - 2, $height - 2], // bottom-right
+            [(int)($width / 2), 2], // top-center
+            [(int)($width / 2), $height - 2], // bottom-center
+            [2, (int)($height / 2)], // left-center
+            [$width - 2, (int)($height / 2)], // right-center
+        ];
+
+        $colors = [];
+
+        foreach ($samplePoints as [$x, $y]) {
+            $color = $img->getColorAt((int)$x, (int)$y);
+            if (isset($color['red'], $color['green'], $color['blue'])) {
+                $rgb = [$color['red'], $color['green'], $color['blue']];
+                $colors[] = $rgb;
+            }
+        }
+
+        // Check if majority are close to white (within delta tolerance)
+        $whiteCount = 0;
+        foreach ($colors as [$r, $g, $b]) {
+            if ($r > 240 && $g > 240 && $b > 240 && max($r, $g, $b) - min($r, $g, $b) < 10) {
+                $whiteCount++;
+            }
+        }
+
+        // If most of the edge samples are near white, assume white background
+        if ($whiteCount >= (count($colors) * 0.6)) {
+            return '#ffffff';
+        }
+
+        // Optional: calculate average edge color as fallback
+        $avg = [0, 0, 0];
+        foreach ($colors as $rgb) {
+            $avg[0] += $rgb[0];
+            $avg[1] += $rgb[1];
+            $avg[2] += $rgb[2];
+        }
+        $n = count($colors);
+        $avg = array_map(fn($v) => (int)round($v / $n), $avg);
+
+        return sprintf("#%02x%02x%02x", ...$avg);
     }
 }
