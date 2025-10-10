@@ -6,22 +6,31 @@ use claviska\SimpleImage;
 
 class Imgcoon
 {
+    /** @var string generator to use (default: auto) */
+    protected string $generator = 'auto';
+
     /** @var string absolute path to the source file */
     protected string $src_path;
+
     /** @var string mime string of the source file */
     protected string $src_mime;
 
+
     /** @var string absolute path to the destination thumbnail file */
     protected string $dest_path;
+
     /** @var string mime string of the destination thumbnail file */
     protected string $dest_mime;
 
     /** @var int width / max width of the thumbnail */
     protected int $width = 600;
+
     /** @var int height / max height of the thumbnail */
     protected int $height = 600;
+
     /** @var int quality of the thumbnail (0-100) */
     protected int $quality = 75;
+
     /** @var string anchor point for cropping */
     protected string $anchor_point = 'center';
 
@@ -41,13 +50,33 @@ class Imgcoon
                                   string $dest_path,
                                   string $dest_mime = 'image/webp',
                                   string $mode = 'crop',
-                                  bool   $override = true): bool
+                                  bool   $override = true,
+                                  string $generator = 'auto'): bool
     {
         $x = new self();
         $x->setSource($src_path);
         $x->setDestination($dest_path, $dest_mime);
         $x->setMode($mode);
+        $x->setGenerator($generator);
         return $x->generate($override);
+    }
+
+    /**
+     * Set the generator to use.
+     *
+     * Only changes the generator if a valid one is chosen.
+     * By default, this is chosen automatically depending on source's mime.
+     *
+     * @param string $generator the wanted generator (case-sensitive).
+     *
+     * @return $this
+     */
+    public function setGenerator(string $generator): static
+    {
+        if (in_array($generator, $this->generators)) {
+            $this->generator = $generator;
+        }
+        return $this;
     }
 
     /**
@@ -153,8 +182,13 @@ class Imgcoon
             }
 
             try {
-                if ($fqcn::isSupported($this->src_mime)) {
-                    return (new $fqcn())->generate();
+                if (($this->generator == 'auto' && $fqcn::isSupported($this->src_mime))
+                    || ($this->generator != 'auto' && $this->generator == $class)) {
+                    return (new $fqcn())
+                        ->setSource($this->src_path, $this->src_mime)
+                        ->setDestination($this->dest_path, $this->dest_mime)
+                        ->setQuality($this->quality)
+                        ->generate();
                 }
             } catch (\Throwable) {
                 // ignore and try next

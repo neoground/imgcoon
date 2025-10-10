@@ -2,9 +2,10 @@
 
 namespace Neoground\Imgcoon\Generators;
 
+use Neoground\Imgcoon\Generator;
 use Neoground\Imgcoon\GeneratorInterface;
 
-class Pdf implements GeneratorInterface
+class Pdf extends Generator implements GeneratorInterface
 {
 
     public function generate(): bool

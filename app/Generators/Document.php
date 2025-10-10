@@ -2,9 +2,10 @@
 
 namespace Neoground\Imgcoon\Generators;
 
+use Neoground\Imgcoon\Generator;
 use Neoground\Imgcoon\GeneratorInterface;
 
-class Document implements GeneratorInterface
+class Document extends Generator implements GeneratorInterface
 {
     /**
      * An array of all mime types (wildcard, str_contains) for files
