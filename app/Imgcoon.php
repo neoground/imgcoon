@@ -41,9 +41,12 @@ class Imgcoon
     protected array $generators = [
         'Audio',
         'Document',
+        'ImageRaw',
+        'ImageSvg',
         'Image',
         'Pdf',
         'Video',
+        'Cad',
     ];
 
     public static function create(string $src_path,

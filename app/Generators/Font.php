@@ -1,0 +1,24 @@
+<?php
+
+namespace Neoground\Imgcoon\Generators;
+
+use Neoground\Imgcoon\Generator;
+use Neoground\Imgcoon\GeneratorInterface;
+
+/**
+ * Creating an image from a font file.
+ */
+class Font extends Generator implements GeneratorInterface
+{
+
+    public function generate(): bool
+    {
+        // TODO: Implement generate() method.
+        return false;
+    }
+
+    public static function isSupported(string $mime): bool
+    {
+        return str_contains($mime, 'font/');
+    }
+}
